@@ -11,6 +11,7 @@ library(dplyr)
 library(httr)
 library(XML)
 library(stringr)
+library(lubridate)
 
 ```
 
@@ -38,13 +39,16 @@ region <- str_sub(data, 39, str_length(data)) %>% str_trim
 processed_data <- data.frame(date, time, lat, long, mag, region, 
                              stringsAsFactors = FALSE)
 
-# Only include earthquakes around Darmstadt
+# Only include earthquakes around Darmstadt and change order so that older
+# earthquakes will get plotted at first
 processed_data <- filter(processed_data, grepl('.*Darmstadt.*', region)) %>%
   transform(
+    date  = dmy(date),
     lat   = as.numeric(lat),
     long  = as.numeric(long),
     mag   = as.numeric(mag)
-    ) 
+    ) %>%
+  arrange(date)
 
 ```
 
