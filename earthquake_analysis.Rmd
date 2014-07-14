@@ -29,22 +29,22 @@ head(doc)
 data <- doc[-1]
 
 date <- str_sub(data, 1, 10) 
-time <- str_trim(str_sub(data, 11, 17))
-lat <- str_trim(str_sub(data, 18, 25))
-long <- str_trim(str_sub(data, 26, 32))
-mag <- str_trim(str_sub(data, 33, 38))
-region <- str_trim(str_sub(data, 39, str_length(data)))
+time <- str_sub(data, 11, 17) %>% str_trim 
+lat <- str_sub(data, 18, 25) %>% str_trim 
+long <- str_sub(data, 26, 32) %>% str_trim 
+mag <- str_sub(data, 33, 38) %>% str_trim 
+region <- str_sub(data, 39, str_length(data)) %>% str_trim
 
-processed_data <- data.frame(date, time, lat, long, mag, region)
+processed_data <- data.frame(date, time, lat, long, mag, region, 
+                             stringAsFactors = FALSE)
 
 # Only include earthquakes around Darmstadt
 processed_data <- filter(processed_data, grepl('.*Darmstadt.*', region)) %>%
   transform(
     lat   = as.numeric(lat),
     long  = as.numeric(long),
-    mag = as.numeric(mag)
-    ) %>%
-  droplevels
+    mag   = as.numeric(mag)
+    ) 
 
 ```
 
@@ -53,6 +53,14 @@ processed_data <- filter(processed_data, grepl('.*Darmstadt.*', region)) %>%
 
 ```{r}
 
+# Get map of Darmstadt
+da_toner <- get_map('Darmstadt', maptype = 'toner', source = 'stamen')
+
+# Create base layer for plotting
+gg <- ggmap(da_toner)
+
+# Add earthquake data to the plot
+gg + geom_point(aes(x = long, y = lat, fill = mag, size = mag), processed_data)
 
 
 ```
