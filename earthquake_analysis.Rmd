@@ -28,7 +28,7 @@ head(doc)
 
 data <- doc[-1]
 
-date <- str_sub(data, 1, 10)
+date <- str_sub(data, 1, 10) 
 time <- str_trim(str_sub(data, 11, 17))
 lat <- str_trim(str_sub(data, 18, 25))
 long <- str_trim(str_sub(data, 26, 32))
@@ -38,9 +38,22 @@ region <- str_trim(str_sub(data, 39, str_length(data)))
 processed_data <- data.frame(date, time, lat, long, mag, region)
 
 # Only include earthquakes around Darmstadt
-processed_data <- filter(processed_data, grepl('.*Darmstadt.*', region))
-
+processed_data <- filter(processed_data, grepl('.*Darmstadt.*', region)) %>%
+  transform(
+    lat   = as.numeric(lat),
+    long  = as.numeric(long),
+    mag = as.numeric(mag)
+    ) %>%
+  droplevels
 
 ```
 
+
+## Plotting data
+
+```{r}
+
+
+
+```
 
