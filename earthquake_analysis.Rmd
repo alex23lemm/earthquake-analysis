@@ -64,8 +64,10 @@ da_toner <- get_map('Darmstadt', maptype = 'toner', source = 'stamen')
 gg <- ggmap(da_toner)
 
 # Add earthquake data to the plot
-gg + geom_point(aes(x = long, y = lat, fill = mag, size = mag), processed_data)
+gg <- gg + geom_point(aes(x = long, y = lat, size = mag), processed_data) 
 
+gg <- gg + scale_size_continuous(limits=c(1,10))
+gg
 
 ```
 
