@@ -1,0 +1,46 @@
+---
+title: "earthquake_analysis"
+output: html_document
+---
+
+
+```{r}
+
+library(ggmap)
+library(dplyr)
+library(httr)
+library(XML)
+library(stringr)
+
+```
+
+## Downloading and processing data
+
+```{r}
+
+# Download entire earthquake data from 2014 for Germany
+page <- GET('http://www.seismologie.bgr.de/cgi-bin/eisy_test_iframe.pl?begin_date=20140101&end_date=20140713&min_lat=&max_lat=&min_lon=&max_lon=&min_mag=&max_mag=&')
+page_content <- content(page, 'text')
+
+parsed_content <- xmlRoot(htmlParse(page_content))
+doc <- xpathSApply(parsed_content, '//pre', xmlValue)
+head(doc)
+
+data <- doc[-1]
+
+date <- str_sub(data, 1, 10)
+time <- str_trim(str_sub(data, 11, 17))
+lat <- str_trim(str_sub(data, 18, 25))
+long <- str_trim(str_sub(data, 26, 32))
+mag <- str_trim(str_sub(data, 33, 38))
+region <- str_trim(str_sub(data, 39, str_length(data)))
+
+processed_data <- data.frame(date, time, lat, long, mag, region)
+
+# Only include earthquakes around Darmstadt
+processed_data <- filter(processed_data, grepl('.*Darmstadt.*', region))
+
+
+```
+
+
