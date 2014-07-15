@@ -104,13 +104,9 @@ processed_data
 
 We’ll use `ggmap` to display the center of the reported earthquakes on a map of Darmstadt.
 
-
 In our first attempt we will plot a toner map provided by [Stamen][stamen]
 
-
-
-
-```{r}
+```{r message=FALSE}
 
 # Get toner map of Darmstadt from Stamen
 da_toner_map <- get_map('Darmstadt', maptype = 'toner', source = 'stamen')
@@ -135,8 +131,32 @@ da_toner_plot
 
 ```
 
-In our next plot we will use a terrain map provided by Google.
+In our next plot we will use a terrain map provided by [Google][google].
 
+```{r message=FALSE}
+
+# Get toner map of Darmstadt from Stamen
+da_terrain_map <- get_map('Darmstadt', zoom = 11,
+                          maptype = 'terrain', source = 'google')
+
+# Create toner plot object
+da_terrain_plot <- ggmap(da_terrain_map) +
+  geom_point(aes(long, lat, size = mag, fill = mag), processed_data, shape = 21,
+             alpha = 0.7) +
+  ggtitle("2014: Recent earthquakes in Darmstadt") +
+  scale_size_continuous(limits = c(2,4)) +
+  scale_fill_gradientn(colours = rev(terrain.colors(5)), limits=c(2,4), 
+                       guide = guide_legend()) +
+  labs(size = 'Magnitude', fill = 'Magnitude') +
+  theme(axis.title = element_blank())
+
+```
+
+```{r}
+
+da_terrain_plot
+
+```
 
 
 [bob]: http://rud.is/b/2014/04/01/mapping-the-march-2014-california-earthquake-with-ggmap/
@@ -144,3 +164,5 @@ In our next plot we will use a terrain map provided by Google.
 [BGR]: http://www.bgr.bund.de/DE/Themen/Erdbeben-Gefaehrdungsanalysen/Seismologie/Seismologie/Erdbebenauswertung/D_seit_1968/d_1968_node.html
 
 [stamen]: http://http://maps.stamen.com/#toner/
+
+[google]: https://maps.google.de
