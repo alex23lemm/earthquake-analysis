@@ -28,6 +28,7 @@ We will download the data using Hadley's `httr` package and include all earthqua
 Actually, the `GET` call below is not necessary. You can download the data directly using `htmlParse` from the `XML` package. However, I just wanted to try it out. 
 
 ```{r}
+
 page <- GET('http://www.seismologie.bgr.de/cgi-bin/eisy_test_iframe.pl?begin_date=20140101&end_date=20140715&min_lat=&max_lat=&min_lon=&max_lon=&min_mag=&max_mag=&')
 page_content <- content(page, 'text')
 
@@ -47,6 +48,7 @@ The relevant earthquake records are included and surrounded by `pre` tags. We wi
 
 
 ```{r}
+
 doc <- xpathSApply(parsed_content, '//pre', xmlValue)
 head(doc)
 
@@ -100,23 +102,45 @@ processed_data
 
 ## Plotting data
 
+We’ll use `ggmap` to display the center of the reported earthquakes on a map of Darmstadt.
+
+
+In our first attempt we will plot a toner map provided by [Stamen][stamen]
+
+
+
+
 ```{r}
 
 # Get toner map of Darmstadt from Stamen
-da_toner <- get_map('Darmstadt', maptype = 'toner', source = 'stamen')
+da_toner_map <- get_map('Darmstadt', maptype = 'toner', source = 'stamen')
 
-# Create plot
-ggmap(da_toner) +
-  geom_point(aes(long, lat, size = mag, fill = mag), processed_data, 
-             shape = 21, alpha = 0.7) +
+# Create toner plot object
+da_toner_plot <- ggmap(da_toner_map) +
+  geom_point(aes(long, lat, size = mag, fill = mag), processed_data, shape = 21,
+             alpha = 0.7) +
+  ggtitle("2014: Recent earthquakes in Darmstadt") +
   scale_size_continuous(limits = c(2,4)) +
-  scale_fill_gradientn(colours = rev(terrain.colors(10)), limits=c(2,4), 
-                       guide = guide_legend())
+  scale_fill_gradientn(colours = rev(terrain.colors(5)), limits=c(2,4), 
+                       guide = guide_legend()) +
+  labs(size = 'Magnitude', fill = 'Magnitude') +
+  theme(axis.title = element_blank())
 
 ```
+
+
+```{r}
+
+da_toner_plot
+
+```
+
+In our next plot we will use a terrain map provided by Google.
+
+
 
 [bob]: http://rud.is/b/2014/04/01/mapping-the-march-2014-california-earthquake-with-ggmap/
 
 [BGR]: http://www.bgr.bund.de/DE/Themen/Erdbeben-Gefaehrdungsanalysen/Seismologie/Seismologie/Erdbebenauswertung/D_seit_1968/d_1968_node.html
 
-[httr]: 
+[stamen]: http://http://maps.stamen.com/#toner/
