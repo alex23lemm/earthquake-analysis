@@ -1,8 +1,11 @@
----
-title: "earthquake_analysis"
-output: html_document
----
 
+# Analysis of earthquake activity in 2014 around Darmstadt, Germany
+
+## Synopysis
+
+In May and June 2014 several earthquakes struck the region west of Darmstadt (Germany). In this report we will use the earthquake data provided by the [Bundesanstalt für Geowissenschaften und Rohstoffe][BGR] and the ggmap package to create different maps. 
+
+__Note:__ This analysis was inspired by [Bob's (Rudis) blog post][] about  the series of earthquakes which hit California in March 2014.
 
 ```{r}
 
@@ -76,3 +79,6 @@ ggmap(da_toner) +
 
 ```
 
+[Bob's (Rudis) blog post]: http://rud.is/b/2014/04/01/mapping-the-march-2014-california-earthquake-with-ggmap/
+
+[BGR]: http://www.bgr.bund.de/DE/Themen/Erdbeben-Gefaehrdungsanalysen/Seismologie/Seismologie/Erdbebenauswertung/D_seit_1968/d_1968_node.html
