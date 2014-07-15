@@ -6,6 +6,7 @@ output: html_document
 
 ```{r}
 
+library(ggplot2)
 library(ggmap)
 library(dplyr)
 library(httr)
@@ -36,12 +37,12 @@ long <- str_sub(data, 26, 32) %>% str_trim
 mag <- str_sub(data, 33, 38) %>% str_trim 
 region <- str_sub(data, 39, str_length(data)) %>% str_trim
 
-processed_data <- data.frame(date, time, lat, long, mag, region, 
+preprocessed_data <- data.frame(date, time, lat, long, mag, region, 
                              stringsAsFactors = FALSE)
 
 # Only include earthquakes around Darmstadt and change order so that older
 # earthquakes will get plotted at first
-processed_data <- filter(processed_data, grepl('.*Darmstadt.*', region)) %>%
+processed_data <- filter(preprocessed_data, grepl('.*Darmstadt.*', region)) %>%
   transform(
     date  = dmy(date),
     lat   = as.numeric(lat),
@@ -52,22 +53,26 @@ processed_data <- filter(processed_data, grepl('.*Darmstadt.*', region)) %>%
 
 ```
 
+```{r}
+
+
+```
+
 
 ## Plotting data
 
 ```{r}
 
-# Get map of Darmstadt
+# Get toner map of Darmstadt from Stamen
 da_toner <- get_map('Darmstadt', maptype = 'toner', source = 'stamen')
 
-# Create base layer for plotting
-gg <- ggmap(da_toner)
-
-# Add earthquake data to the plot
-gg <- gg + geom_point(aes(x = long, y = lat, size = mag), processed_data) 
-
-gg <- gg + scale_size_continuous(limits=c(1,10))
-gg
+# Create plot
+ggmap(da_toner) +
+  geom_point(aes(long, lat, size = mag, fill = mag), processed_data, 
+             shape = 21, alpha = 0.7) +
+  scale_size_continuous(limits = c(2,4)) +
+  scale_fill_gradientn(colours = rev(terrain.colors(10)), limits=c(2,4), 
+                       guide = guide_legend())
 
 ```
 
