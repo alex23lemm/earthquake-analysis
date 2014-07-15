@@ -3,11 +3,13 @@
 
 ## Synopysis
 
-In May and June 2014 several earthquakes struck the region west of Darmstadt (Germany). In this report we will use the earthquake data provided by the [Bundesanstalt für Geowissenschaften und Rohstoffe][BGR] and the ggmap package to create different maps. 
+In May and June 2014 several earthquakes struck the region east of Darmstadt (Germany). In this report we will use the earthquake data provided by the [Bundesanstalt für Geowissenschaften und Rohstoffe (BGR)][BGR] and the `ggmap` package to create different maps. 
 
-__Note:__ This analysis was inspired by [Bob's (Rudis) blog post][] about  the series of earthquakes which hit California in March 2014.
+_Note:_ This analysis was inspired by [Bob's (Rudis) blog post][bob] about  the series of earthquakes which hit California in March 2014.
 
-```{r}
+## Loading packages
+
+```{r message=FALSE}
 
 library(ggplot2)
 library(ggmap)
@@ -21,13 +23,30 @@ library(lubridate)
 
 ## Downloading and processing data
 
-```{r}
+We will download the data using Hadley's `httr` package and include all earthquake records from 2014 for Germany.
 
-# Download entire earthquake data from 2014 for Germany
-page <- GET('http://www.seismologie.bgr.de/cgi-bin/eisy_test_iframe.pl?begin_date=20140101&end_date=20140713&min_lat=&max_lat=&min_lon=&max_lon=&min_mag=&max_mag=&')
+Actually, the `GET` call below is not necessary. You can download the data directly using `htmlParse` from the `XML` package. However, I just wanted to try it out. 
+
+```{r}
+page <- GET('http://www.seismologie.bgr.de/cgi-bin/eisy_test_iframe.pl?begin_date=20140101&end_date=20140715&min_lat=&max_lat=&min_lon=&max_lon=&min_mag=&max_mag=&')
 page_content <- content(page, 'text')
 
 parsed_content <- xmlRoot(htmlParse(page_content))
+
+```
+
+Let's take a look at the downloaded data: 
+
+```{r}
+
+parsed_content
+
+```
+
+The relevant earthquake records are included and surrounded by `pre` tags. We will fetch the records using a `XPath` expression and store them in a data frame. Based on the fact that they are stored in a fixed length format we can use a series of `str_sub` calls to extract the relevant parts one by one. 
+
+
+```{r}
 doc <- xpathSApply(parsed_content, '//pre', xmlValue)
 head(doc)
 
@@ -42,9 +61,23 @@ region <- str_sub(data, 39, str_length(data)) %>% str_trim
 
 preprocessed_data <- data.frame(date, time, lat, long, mag, region, 
                              stringsAsFactors = FALSE)
+```
+
+How does the pre-processed data look like?
+
+```{r}
+
+head(preprocessed_data)
+
+```
+
+Now, we are only interested in earthquakes which struck the region of Darmstadt. In addition, we will transform some of the character variables into numeric ones. 
+
+```{r}
 
 # Only include earthquakes around Darmstadt and change order so that older
-# earthquakes will get plotted at first
+# earthquakes will get plotted first in case they need to get plotted on top of 
+# each other
 processed_data <- filter(preprocessed_data, grepl('.*Darmstadt.*', region)) %>%
   transform(
     date  = dmy(date),
@@ -56,8 +89,11 @@ processed_data <- filter(preprocessed_data, grepl('.*Darmstadt.*', region)) %>%
 
 ```
 
+Our processed data looks as follows and can directly be used for plotting in the next section:
+
 ```{r}
 
+processed_data 
 
 ```
 
@@ -79,6 +115,8 @@ ggmap(da_toner) +
 
 ```
 
-[Bob's (Rudis) blog post]: http://rud.is/b/2014/04/01/mapping-the-march-2014-california-earthquake-with-ggmap/
+[bob]: http://rud.is/b/2014/04/01/mapping-the-march-2014-california-earthquake-with-ggmap/
 
 [BGR]: http://www.bgr.bund.de/DE/Themen/Erdbeben-Gefaehrdungsanalysen/Seismologie/Seismologie/Erdbebenauswertung/D_seit_1968/d_1968_node.html
+
+[httr]: 
