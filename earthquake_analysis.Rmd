@@ -1,11 +1,10 @@
 
-# Analysis of earthquake activity in 2014 around Darmstadt, Germany
+# Earthquake activity analysis 2014 for Darmstadt, Germany
 
 ## Synopysis
 
-In May and June 2014 several earthquakes struck the region east of Darmstadt (Germany). In this report we will use the earthquake data provided by the [Bundesanstalt fuer Geowissenschaften und Rohstoffe (BGR)][BGR] and the `ggmap` package to create different maps. 
+In May, June, September and October 2014 several earthquakes struck the region east of Darmstadt (Germany). In this report we will use the earthquake data provided by the [Bundesanstalt fuer Geowissenschaften und Rohstoffe (BGR)][BGR] and the `ggmap` package to create different maps. 
 
-_Note:_ This analysis was inspired by [Bob's (Rudis) blog post][bob] about  the series of earthquakes which hit California in March 2014.
 
 ## Loading packages
 
@@ -30,7 +29,7 @@ Actually, the `GET` call below is not necessary. You can download the data direc
 
 ```{r}
 
-page <- GET('http://www.seismologie.bgr.de/cgi-bin/eisy_test_iframe.pl?begin_date=20140101&end_date=20140715&min_lat=&max_lat=&min_lon=&max_lon=&min_mag=&max_mag=&')
+page <- GET('http://www.seismologie.bgr.de/cgi-bin/eisy_test_iframe.pl?begin_date=20140101&end_date=20141106&min_lat=&max_lat=&min_lon=&max_lon=&min_mag=&max_mag=&')
 page_content <- content(page, 'text')
 
 parsed_content <- xmlRoot(htmlParse(page_content))
@@ -104,11 +103,11 @@ processed_data
 
 ## Plotting data
 
-We'll use `ggmap` to display the center of the reported earthquakes on a map of Darmstadt.
+We'll use `ggmap` and to display the center of the reported earthquakes on a map of Darmstadt. Magnitude will be encoded by `size` and `fill`.
 
-In our first attempt we will plot a toner map provided by [Stamen][stamen]
+In our first attempt we will plot a toner map provided by [Stamen][stamen].
 
-```{r message=FALSE}
+```{r toner_plot, message=FALSE}
 
 # Get toner map of Darmstadt from Stamen
 da_toner_map <- get_map('Darmstadt', maptype = 'toner', source = 'stamen')
@@ -132,9 +131,9 @@ da_toner_plot
 
 In our next plot we will use a terrain map provided by [Google][google].
 
-```{r message=FALSE}
+```{r terrain_plot, message=FALSE}
 
-# Get toner map of Darmstadt from Stamen
+# Get terrain map of Darmstadt from Google
 da_terrain_map <- get_map('Darmstadt', zoom = 11,
                           maptype = 'terrain', source = 'google')
 
